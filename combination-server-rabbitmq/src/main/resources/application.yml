@@ -1,0 +1,17 @@
+# 端口
+server:
+  port: 8061
+
+# 属性
+spring:
+  application:
+    name: combination-server-rabbitmq
+
+eureka:
+  client:
+    service-url:
+      # eureka配置信息
+      defaultZone: http://localhost:8000/eureka/
+  # 注册中心地址实例id
+  instance:
+    prefer-ip-address: true

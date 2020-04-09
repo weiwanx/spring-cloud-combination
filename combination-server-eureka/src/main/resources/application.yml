@@ -1,0 +1,17 @@
+# 端口
+server:
+  port: 8000
+
+# 属性
+spring:
+  application:
+    name: combination-server-eureka
+
+eureka:
+  client:
+    # 表示是否将自己注册到Eureka Server，默认为true
+    register-with-eureka: false
+    # 表示是否从Eureka Server获取注册信息，默认为true
+    fetch-registry: false
+    serviceUrl:
+      defaultZone: http://localhost:${server.port}/eureka/
