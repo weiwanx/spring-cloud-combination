@@ -1,0 +1,1 @@
+package com.combination.rabbitmq.redisson;/** * @author: Kenny * @date: 2019/12/9 * @description: */public class RedisKeyBean {}
