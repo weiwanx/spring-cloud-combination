@@ -4,6 +4,7 @@ import com.combination.rabbitmq.rabbit.key.RabbitMqKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ public class TradeOrderQueueConfig {
      *
      * @return
      */
-    @Bean(value = RabbitMqKey.TRADE_ORDER_QUEUE)
+    @Bean(name = "queue")
     public Queue queue() {
         logger.info("queue : {}", RabbitMqKey.TRADE_ORDER_QUEUE);
         // 队列持久化
@@ -52,36 +53,123 @@ public class TradeOrderQueueConfig {
      *
      * @return
      */
-    @Bean(value = RabbitMqKey.TRADE_ORDER_EXCHANGE)
+    @Bean(name = "fanoutExchange")
     public FanoutExchange fanoutExchange() {
         logger.info("exchange : {}", RabbitMqKey.TRADE_ORDER_EXCHANGE);
         return new FanoutExchange(RabbitMqKey.TRADE_ORDER_EXCHANGE);
     }
 
-    @Bean(value = RabbitMqKey.TRADE_DIRECT_TEST_QUEUE)
+
+
+//    @Bean(name = "testQueue")
+//    public Queue testQueue() {
+//        logger.info("queue : {}", RabbitMqKey.TEST_QUEUE);
+//        // 队列持久化
+//        return new Queue(RabbitMqKey.TEST_QUEUE, true);
+//    }
+
+//    @Bean
+//    Binding testBinding(@Qualifier("testQueue") Queue testQueue,
+//                          @Qualifier("testExchange") FanoutExchange testExchange) {
+//        return BindingBuilder.bind(testQueue).to(testExchange);
+//    }
+
+//    @Bean(name = "delayTestQueue")
+//    public Queue delayTestQueue() {
+//        Map<String, Object> params = new HashMap<>(2);
+//        // x-dead-letter-exchange 声明了当前队列绑定的死信交换机
+//        params.put("x-dead-letter-exchange", RabbitMqKey.DELAY_EXCHANGE);
+//        // x-dead-letter-routing-key 声明了这些死信在转发时携带的 routing-key 名称。
+//        params.put("x-dead-letter-routing-key", RabbitMqKey.DELAY_ROUTING_KEY);
+//        return QueueBuilder.durable(RabbitMqKey.TEST_QUEUE).withArguments(params).build();
+//    }
+//
+//    @Bean
+//    Binding testBinding(@Qualifier("delayTestQueue") Queue delayTestQueue,
+//                          @Qualifier("testExchange") FanoutExchange testExchange) {
+//        return BindingBuilder.bind(delayTestQueue).to(testExchange);
+//    }
+
+    @Bean(name = "testExchange")
+    public FanoutExchange testExchange() {
+        logger.info("exchange : {}", RabbitMqKey.TEST_EXCHANGE);
+        return new FanoutExchange(RabbitMqKey.TEST_EXCHANGE);
+    }
+
+    @Bean(name = "delayTestQueue")
+    public Queue delayTestQueue() {
+        logger.info("queue : {}", RabbitMqKey.TEST_QUEUE);
+        // 队列持久化
+        return new Queue(RabbitMqKey.TEST_QUEUE, true);
+    }
+
+    @Bean
+    Binding delayTestBinding(@Qualifier("delayTestQueue") Queue delayTestQueue,
+                          @Qualifier("testExchange") FanoutExchange testExchange) {
+        return BindingBuilder.bind(delayTestQueue).to(testExchange);
+    }
+
+    @Bean(name = "delayQueue")
+    public Queue delayQueue() {
+        logger.info("queue : {}", RabbitMqKey.DELAY_QUEUE);
+        // 队列持久化
+        return new Queue(RabbitMqKey.DELAY_QUEUE, true);
+    }
+
+    @Bean(name = "delayExchange")
+    public DirectExchange delayExchange() {
+        logger.info("exchange : {}", RabbitMqKey.DELAY_EXCHANGE);
+        return new DirectExchange(RabbitMqKey.DELAY_EXCHANGE);
+    }
+
+    @Bean
+    Binding delayBinding(@Qualifier("delayQueue") Queue delayQueue,
+                          @Qualifier("delayExchange") DirectExchange delayExchange) {
+        return BindingBuilder.bind(delayQueue).to(delayExchange).with(RabbitMqKey.DELAY_ROUTING_KEY);
+    }
+
+    @Bean
+    Binding fanoutBinding(@Qualifier("queue") Queue queue,
+                    @Qualifier("fanoutExchange") FanoutExchange fanoutExchange) {
+        return BindingBuilder.bind(queue).to(fanoutExchange);
+    }
+
+    @Bean(name = "directQueue")
     public Queue directQueue() {
         logger.info("queue : {}", RabbitMqKey.TRADE_DIRECT_TEST_QUEUE);
         // 队列持久化
         return new Queue(RabbitMqKey.TRADE_DIRECT_TEST_QUEUE, true);
     }
 
-    @Bean(value = RabbitMqKey.TRADE_DIRECT_TEST_EXCHANGE)
+    @Bean(name = "directExchange")
     public DirectExchange directExchange() {
         logger.info("exchange : {}", RabbitMqKey.TRADE_DIRECT_TEST_EXCHANGE);
         return new DirectExchange(RabbitMqKey.TRADE_DIRECT_TEST_EXCHANGE);
     }
 
-    @Bean(value = RabbitMqKey.TRADE_TOPIC_TEST_QUEUE)
+    @Bean
+    Binding directBinding(@Qualifier("directQueue") Queue directQueue,
+                          @Qualifier("directExchange") DirectExchange directExchange) {
+        return BindingBuilder.bind(directQueue).to(directExchange).with(RabbitMqKey.ROUTING_KEY);
+    }
+
+    @Bean(name = "topicQueue")
     public Queue topicQueue() {
         logger.info("queue : {}", RabbitMqKey.TRADE_TOPIC_TEST_QUEUE);
         // 队列持久化
         return new Queue(RabbitMqKey.TRADE_TOPIC_TEST_QUEUE, true);
     }
 
-    @Bean(value = RabbitMqKey.TRADE_TOPIC_TEST_EXCHANGE)
+    @Bean(name = "topicExchange")
     public TopicExchange topicExchange() {
         logger.info("exchange : {}", RabbitMqKey.TRADE_TOPIC_TEST_EXCHANGE);
         return new TopicExchange(RabbitMqKey.TRADE_TOPIC_TEST_EXCHANGE);
+    }
+
+    @Bean
+    Binding topicBinding(@Qualifier("topicQueue") Queue topicQueue,
+                          @Qualifier("topicExchange") TopicExchange topicExchange) {
+        return BindingBuilder.bind(topicQueue).to(topicExchange).with(RabbitMqKey.TOPIC_ROUTING_KEY);
     }
 
     /**
@@ -89,7 +177,7 @@ public class TradeOrderQueueConfig {
      *
      * @return
      */
-    @Bean
+    @Bean(name = "delayOrderQueue")
     public Queue delayOrderQueue() {
         Map<String, Object> params = new HashMap<>(2);
         // x-dead-letter-exchange 声明了当前队列绑定的死信交换机
@@ -106,16 +194,22 @@ public class TradeOrderQueueConfig {
      *
      * @return
      */
-    @Bean
+    @Bean(name = "orderDelayExchange")
     public DirectExchange orderDelayExchange() {
         return new DirectExchange(RabbitMqKey.TRADE_ORDER_DELAY_EXCHANGE);
+    }
+
+    @Bean
+    Binding orderDelayBinding(@Qualifier("delayOrderQueue") Queue delayOrderQueue,
+                         @Qualifier("orderDelayExchange") DirectExchange orderDelayExchange) {
+        return BindingBuilder.bind(delayOrderQueue).to(orderDelayExchange).with(RabbitMqKey.ORDER_DELAY_ROUTING_KEY);
     }
 
     /**
      * 接收死信队列内的信息 - queue
      * @return
      */
-    @Bean
+    @Bean(name = "orderQueue")
     public Queue orderQueue() {
         return new Queue(RabbitMqKey.DEAD_LETTER_QUEUE, true);
     }
@@ -124,52 +218,15 @@ public class TradeOrderQueueConfig {
      * 将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。
      * 符号“#”匹配一个或多个词，符号“*”匹配不多不少一个词。因此“audit.#”能够匹配到“audit.irs.corporate”，但是“audit.*” 只会匹配到“audit.irs”。
      **/
-    @Bean
+    @Bean(name = "orderTopicExchange")
     public TopicExchange orderTopicExchange() {
         return new TopicExchange(RabbitMqKey.DEAD_LETTER_EXCHANGE);
     }
 
-//    @Bean(value = RabbitMqKey.TEST_QUEUE)
-//    public Queue testQueue() {
-//        logger.info("queue : {}", RabbitMqKey.TEST_QUEUE);
-//        // 队列持久化
-//        return new Queue(RabbitMqKey.TEST_QUEUE, true);
-//    }
-
-    @Bean(value = RabbitMqKey.TEST_EXCHANGE)
-    public FanoutExchange testExchange() {
-        logger.info("exchange : {}", RabbitMqKey.TEST_EXCHANGE);
-        return new FanoutExchange(RabbitMqKey.TEST_EXCHANGE);
-    }
-
     @Bean
-    public Queue delayTestQueue() {
-        Map<String, Object> params = new HashMap<>(2);
-        // x-dead-letter-exchange 声明了当前队列绑定的死信交换机
-        params.put("x-dead-letter-exchange", RabbitMqKey.DELAY_EXCHANGE);
-        // x-dead-letter-routing-key 声明了这些死信在转发时携带的 routing-key 名称。
-        params.put("x-dead-letter-routing-key", RabbitMqKey.DELAY_ROUTING_KEY);
-        return QueueBuilder.durable(RabbitMqKey.TEST_QUEUE).withArguments(params).build();
-    }
-
-//    @Bean
-//    public Queue delayTestQueue() {
-//        logger.info("queue : {}", RabbitMqKey.TEST_QUEUE);
-//        // 队列持久化
-//        return new Queue(RabbitMqKey.TEST_QUEUE, true);
-//    }
-
-    @Bean(value = RabbitMqKey.DELAY_QUEUE)
-    public Queue delayQueue() {
-        logger.info("queue : {}", RabbitMqKey.DELAY_QUEUE);
-        // 队列持久化
-        return new Queue(RabbitMqKey.DELAY_QUEUE, true);
-    }
-
-    @Bean(value = RabbitMqKey.DELAY_EXCHANGE)
-    public DirectExchange delayExchange() {
-        logger.info("exchange : {}", RabbitMqKey.DELAY_EXCHANGE);
-        return new DirectExchange(RabbitMqKey.DELAY_EXCHANGE);
+    Binding orderTopicBinding(@Qualifier("orderQueue") Queue orderQueue,
+                              @Qualifier("orderTopicExchange") TopicExchange orderTopicExchange) {
+        return BindingBuilder.bind(orderQueue).to(orderTopicExchange).with(RabbitMqKey.DEAD_LETTER_ROUTING_KEY);
     }
 
     /**
@@ -178,20 +235,20 @@ public class TradeOrderQueueConfig {
      *
      * @return
      */
-    @Bean
-    public List<Binding> bindings() {
-        List<Binding> bindings = new ArrayList<>();
-
-        bindings.add(BindingBuilder.bind(queue()).to(fanoutExchange()));
-        bindings.add(BindingBuilder.bind(directQueue()).to(directExchange()).with(RabbitMqKey.ROUTING_KEY));
-        bindings.add(BindingBuilder.bind(topicQueue()).to(topicExchange()).with(RabbitMqKey.TOPIC_ROUTING_KEY));
-        bindings.add(BindingBuilder.bind(orderQueue()).to(orderTopicExchange()).with(RabbitMqKey.DEAD_LETTER_ROUTING_KEY));
-        bindings.add(BindingBuilder.bind(delayOrderQueue()).to(orderDelayExchange()).with(RabbitMqKey.ORDER_DELAY_ROUTING_KEY));
-        bindings.add(BindingBuilder.bind(delayTestQueue()).to(testExchange()));
-        bindings.add(BindingBuilder.bind(delayQueue()).to(delayExchange()).with(RabbitMqKey.DELAY_ROUTING_KEY));
-
-        return bindings;
-    }
+//    @Bean
+//    public List<Binding> bindings() {
+//        List<Binding> bindings = new ArrayList<>();
+//
+//        bindings.add(BindingBuilder.bind(queue()).to(fanoutExchange()));
+//        bindings.add(BindingBuilder.bind(directQueue()).to(directExchange()).with(RabbitMqKey.ROUTING_KEY));
+//        bindings.add(BindingBuilder.bind(topicQueue()).to(topicExchange()).with(RabbitMqKey.TOPIC_ROUTING_KEY));
+//        bindings.add(BindingBuilder.bind(orderQueue()).to(orderTopicExchange()).with(RabbitMqKey.DEAD_LETTER_ROUTING_KEY));
+//        bindings.add(BindingBuilder.bind(delayOrderQueue()).to(orderDelayExchange()).with(RabbitMqKey.ORDER_DELAY_ROUTING_KEY));
+//        bindings.add(BindingBuilder.bind(delayTestQueue()).to(testExchange()));
+//        bindings.add(BindingBuilder.bind(delayQueue()).to(delayExchange()).with(RabbitMqKey.DELAY_ROUTING_KEY));
+//
+//        return bindings;
+//    }
 }
 
 
