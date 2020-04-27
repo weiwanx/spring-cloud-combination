@@ -1,0 +1,127 @@
+# 端口
+server:
+  port: 8062
+
+# 属性
+spring:
+  application:
+    name: combination-server-user
+
+  #数据库设置
+  datasource:
+    url: jdbc:mysql://localhost:3306/distribution_data?useSSL=false&allowMultiQueries=true
+    username: root
+    password: WWX5201314
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # rabbitmq
+  rabbitmq:
+    host: localhost
+    port: 5672
+    virtual-host: /
+    username: admin
+    password:  admin
+    # 是否启用【发布确认】
+    publisher-confirms: true
+    # 指定一个请求能处理多少个消息
+    listener:
+      simple:
+        # 限流（海量数据，同时只能过来一条）
+        prefetch: 1
+        # 自动签收auto  手动 manual  默认自动签收
+        acknowledge-mode: auto
+        retry:
+          # 开启重试机制
+          enabled: true
+          # 重试次数
+          # max-attempts: 5
+          # 最大间隔时间
+          # max-interval: 20000
+          # 重试间隔时间（单位毫秒）
+          # initial-interval: 3000
+          #乘子  重试间隔*乘子得出下次重试间隔  3s  6s  12s  24s  此处24s>20s  走20s
+          # multiplier: 2
+          # 重试次数超过上面的设置之后是否丢弃（false不丢弃时需要写相应代码将该消息加入死信队列）
+        # default-requeue-rejected: false
+
+  # 数据库版本控制
+  flyway:
+    # 启用或禁用 flyway
+    enabled: true
+    # 字符编码
+    encoding: utf-8
+    # 对执行迁移时基准版本的描述
+    baseline-description: test
+    # 若连接的数据库非空库，是否初始化
+    # 当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false.
+    baseline-on-migrate: true
+    # 指定 baseline 的版本号,缺省值为 1, 低于该版本号的 SQL 文件, migrate 的时候被忽略
+    # 开始执行基准迁移时对现有的schema的版本打标签，默认值为1.
+    baseline-version: 0
+    # 是否开启校验
+    # 迁移时是否校验，默认为 true
+    validate-on-migrate: true
+    # 默认脚本加载路径：/db/migration
+    # locations: ["classpath:/db/migration"]
+    # flyway 的 clean 命令会删除指定 schema 下的所有 table，默认 false
+    clean-disabled: false
+    # 发环境最好开启 outOfOrder, 生产环境关闭 outOfOrder
+    # 是否允许无序的迁移，默认 false
+    out-of-order: false
+    # 检查迁移脚本的位置是否存在，默认false
+    check-location: false
+    # 当读取元数据表时是否忽略错误的迁移，默认false
+    ignore-future-migrations: false
+    # 当初始化好连接时要执行的SQL
+    init-sqls: show tables;
+    # 迁移时使用的JDBC URL，如果没有指定的话，将使用配置的主数据源
+    #url:
+    # 迁移数据库的用户名
+    #user:
+    # 目标数据库的密码
+    #password:
+    # 设置每个placeholder的前缀，默认${
+    #placeholder-prefix:
+    # 是否要被替换，默认true
+    #placeholder-replacement:
+    # 设置每个placeholder的后缀，默认}
+    #placeholder-suffix:
+    # 设置placeholder的value
+    #placeholders.[placeholder name]
+    # 设定需要flywary迁移的schema，大小写敏感，默认为连接默认的schema
+    #schemas: flyway
+    # 迁移文件的前缀，默认为V
+    #sql-migration-prefix:
+    # 迁移脚本的文件名分隔符，默认__
+    #sql-migration-separator:
+    # 迁移脚本的后缀，默认为.sql
+    #sql-migration-suffix:
+    # 使用的元数据表名，默认为schema_version
+    #table: flyway_schema_history
+    # 迁移时使用的目标版本，默认为latest version
+    #target:
+
+eureka:
+  client:
+    service-url:
+      # eureka配置信息
+      defaultZone: http://localhost:8000/eureka/
+  # 注册中心地址实例id
+  instance:
+    prefer-ip-address: true
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  check-config-location: true
+  type-aliases-package: com.combination.user.model
+  configuration:
+    cacheEnabled: true
+    mapUnderscoreToCamelCase: true
+    # logImpl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 自定义jwt key
+jwt:
+  tokenHeader: token #JWT存储的请求头
+  secret: mySecret #JWT加解密使用的密钥
+  expiration: 604800 #JWT的超期限时间(60*60*24)
+  tokenHead: Bearer  #JWT负载中拿到开头
