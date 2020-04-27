@@ -1,5 +1,10 @@
 # spring-cloud-combination
-springcloud全家桶，相关组件都有用到，持续更新中
+
+---
+SpringCloud全家桶，相关组件都会使用，持续更新中
+
+<br/>
+<br/>
 
 | 服务名 | 作用 | clone后需要修改的内容 |
 |------|------------|------------|
