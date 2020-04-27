@@ -37,28 +37,6 @@ spring:
           # 重试次数超过上面的设置之后是否丢弃（false不丢弃时需要写相应代码将该消息加入死信队列）
         # default-requeue-rejected: false
 
-#jediss:
-#  url: redis://192.168.1.150
-#  pool:
-#    # 需确认 redis 集群的地址、端口是否一致
-#    # clusterNodes: ${jediss.url}:7000,${jediss.url}:7001,${jediss.url}:7002,${jediss.url}:7003,${jediss.url}:7004,${jediss.url}:7005
-#    # 开发环境 redis 配置
-#    clusterNodes: ${jediss.url}:7000 #,${jediss.url}:7011,${jediss.url}:7012,${jediss.url}:7013,${jediss.url}:7014,${jediss.url}:7015
-#    #扫描集群时间间隔
-#    scanInterval: 20000
-#    #设置对于master节点的连接池中连接数最大为1000
-#    masterConnectionPoolSize: 100
-#    #设置对于slave节点的连接池中连接数最大为1000
-#    slaveConnectionPoolSize: 100
-#    #如果当前连接池里的连接数量超过了最小空闲连接数，而同时有连接空闲时间超过了该数值，那么这些连接将会自动被关闭，并从连接池里去掉。时间单位是毫秒。
-#    idleConnectionTimeout: 10000
-#    #同任何节点建立连接时的等待超时。时间单位是毫秒。
-#    connectTimeout: 10000
-#    #等待节点回复命令的时间。该时间从命令发送成功时开始计时。
-#    timeout: 30000
-#    #设置心跳时间
-#    pingTimeout: 10000
-
 eureka:
   client:
     service-url:
